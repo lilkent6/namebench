@@ -340,7 +340,7 @@ class Benchmark(object):
       filename: full path on where to save results (string)
 
     Sample output:
-    nameserver, test_number, test, type, duration, answer_count, ttl
+    nameserver, testu_number, test, type, duration, answer_count, ttl
     """
     self.msg("Opening %s for write" % filename)
     csv_file = open(filename, 'w')
@@ -361,7 +361,4 @@ class Benchmark(object):
               ttl = response.answer[0].ttl
             answer_text = ns.ResponseToAscii(response)
           output.writerow([ns.ip, ns.name, ns.check_duration, test_run, record,
-                           req_type, duration, ttl, answer_count, answer_text])
-    csv_file.close()
-    self.msg("%s saved." % filename, debug=True)
-
+                           req_type, duration, tt
