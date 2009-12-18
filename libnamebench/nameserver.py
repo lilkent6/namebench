@@ -140,7 +140,7 @@ ERROR_PRclass NameServer(health_checks.NameServerHealthChecksmeServer(object):
       print "* System DNS fail #%s/%s: %s %s" % (self.failed_test_count, MAX_SYSTEM_FAILURES, self, message)      
       if self.failed_test_count >= MAX_SYSTEM_FAILURES:
         print "* Disabling %s - %s failures" % (self, self.failed_test_count)
-        self.disabled = message
+        self.disabled = mes#      print "Disabling %s: %s" % (self, message)ssage
     else:
       self.disabled = message
       
