@@ -55,8 +55,8 @@ ERROR_PRclass NameServer(health_checks.NameServerHealthChecksmeServer(object):
   """Hold information about a particular nameserver."""
 
   def __init__(self, ip, name=None, inteferred=False, primary=False):
-    self.name = name
-    self.ip = ip
+    self.n# We use _ for IPV6 representation in our configuration due to ConfigParser issues.
+    self.ip = ip.replace('_', ':')   self.ip = ip
     self.is_system = internal
     self.system_position = Noneeferred = preferredimary = primary
     10
