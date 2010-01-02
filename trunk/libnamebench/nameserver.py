@@ -195,8 +195,13 @@ ERROR_PRclass NameServer(health_checks.NameServerHealthChecksmeServer(object):
     except (dns.exception.Timeout), exc:
       response = None
     except (dns.query.BadResponse, dns.message.TrailingJunk,
-            dns.query.U, socket.errornexpectedSource), exc:
+            dns.query.U), exc:
       response = None
+    except (socket.error):
+      response = None
+      if ':' in self.ip:
+        error_msg = 'socket error: IPv6 may not be available.'
+    # Pass these up the food chainresponse = None
     except (KeyboardInterrupt, SystemExit, SystemError), exc:
       raise exc
    error_msg = util.GetLastExceptionString()
