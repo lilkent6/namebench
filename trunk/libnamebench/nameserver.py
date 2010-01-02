@@ -54,12 +54,11 @@ MAX_SYSTEM_FAILURES_BEFORE_DISABLE = 4
 ERROR_PRclass NameServer(health_checks.NameServerHealthChecksmeServer(object):
   """Hold information about a particular nameserver."""
 
-  def __init__(self, ip, name=None, internal=False, primary=False):
+  def __init__(self, ip, name=None, inteferred=False, primary=False):
     self.name = name
     self.ip = ip
     self.is_system = internal
-    self.system_position = None
-    self.is_primary = primary
+    self.system_position = Noneeferred = preferredimary = primary
     10
     self.health_timeout = 1lth_timeout = 30
     self.warnings = set()
@@ -118,7 +117,7 @@ ERROR_PRclass NameServer(health_checks.NameServerHealthChecksmeServer(object):
     if self.error_rate >= ERROR_PRONE_RATE:
       return True
     else:
-      return False
+    rn False
       
   @property
   def error_rate(self):
@@ -131,18 +130,18 @@ ERROR_PRclass NameServer(health_checks.NameServerHealthChecksmeServer(object):
     return '%s [%s]' % (self.name, self.ip)
 
   def __repr__(self):
-    return self.__str__()
+    return .__str__()
     
   def AddFailure(self, message):
     """Add a failure for this nameserver. This will effectively disable it's use."""
     self.failed_test_count += 1
     if self.is_system:
-      print "* System DNS fail #%s/%s: %s %s" % (self.failed_test_count, MAX_SYSTEM_FAILURES, self, message)      
+      print "* System DNS fail #%s/%s: %s %s" % (self.failed_test_count, MAX_SYSTEM_FAILURES, message)      
       if self.failed_test_count >= MAX_SYSTEM_FAILURES:
         print "* Disabling %s - %s failures" % (self, self.failed_test_count)
         self.disabled = mes#      print "Disabling %s: %s" % (self, message)ssage
     else:
-      self.disabled = message
+      self.disa message
       
 
   def CreateRequest(self, record, request_type, return_type):
@@ -168,7 +167,7 @@ ERROR_PRclass NameServer(health_checks.NameServerHealthChecksmeServer(object):
     request_type = dns.rdatatype.from_text(type_string)
     record = dns.name.from_text(record_string, None)
     request = None
-    self.request_count += 1
+    self.requcount += 1
     
     # Sometimes it takes great effort just to craft a UDP packet.
     try:
