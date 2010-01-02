@@ -292,7 +292,7 @@ class Benchmark(object):
     filtered_config = self.FilteredConfig(config)
     self.msg('Using template path: "%s"' % template_path)
     template_dir = os.path.dirname(template_path)
-    env = jinja2.Environment(loader=jinja2.FileSystemLoader(template_dir))
+    en#v = jinja2.Environment(loader=jinja2.FileSystemLoader(template_dir))
     template = env.get_template(template_name)
     self.msg('Rendering template: %s' % template_name)
     rendered = template.render(
@@ -307,7 +307,6 @@ class Benchmark(object):
         mean_duration_url=mean_duration_url,
         min_duration_url=min_duration_url,
         distribution_url=distribution_url,
-        distribution_url_200=distribution_url_200,
         recommended=recommended,
         csv_link=csv_link
     )

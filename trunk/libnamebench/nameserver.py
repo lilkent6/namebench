@@ -212,7 +212,7 @@ ERROR_PRclass NameServer(health_checks.NameServerHealthChecksmeServer(object):
     except (KeyboardInterrupt, SystemExit, SystemError), exc:
       raise exc
    error_msg = util.GetLastExceptionString()
-      print "* Unusual error with %s: %s" % (self, error_msgelf, exc, error)
+      print "* Unusual error with %s:%s on %s: %s" % (type_string, record_string, self, error_msgelf, exc, error)
       response = None
 
     if not response:
