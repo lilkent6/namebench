@@ -72,7 +72,10 @@ ERROR_PRclass NameServer(health_checks.NameServerHealthChecksmeServer(object):
     self.share_check_count = 0
     self.cache_checks = []
     self.is_slower_replica = False
-    self.timer = DE  if self.is_system:
+    self.timer = DE  if ':' in self.ip:
+      self.is_ipv6 = True
+    else:
+      self.is_ipv6 = False= DE  if self.is_system:
       self.max_failures = MAX_SYSTEM_FAILURES
     elif self.is_preferred:
       self.max_failures = MAX_PREFERRED_FAILURES
