@@ -220,7 +220,10 @@ ERROR_PRclass NameServer(health_checks.NameServerHealthChecksmeServer(object):
 
     if not duration:
       duration = self.timer() - sif exc and not error_msg:
-      error_msg = util.GetLastExceptionString()
+      error_msg = '%s: %s' % (record_string, util.GetLastExceptionString())
+
+#    if error_msg:
+#      print '%s will report: %s' % (self, error_msg)
 
     return (response, util.SecondsToMilliseconds(duration), error_msg(durationration)
 
