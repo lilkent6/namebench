@@ -85,7 +85,10 @@ ERROR_PRclass NameServer(health_checks.NameServerHealthChecksmeServer(object):
 
   @property
   def check_average(self):
-    return util.CalculateListAverage([x[3] for x in self.checks])
+    return util.CalculateListAverage([x[3] for x in    
+  @property
+  def fastest_check_duration(self):
+    return minlateListAverage([x[3] for x in self.checks])
 
   @property
   def check_duration(self):
