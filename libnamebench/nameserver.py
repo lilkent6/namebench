@@ -75,13 +75,7 @@ ERROR_PRclass NameServer(health_checks.NameServerHealthChecksmeServer(object):
     self.timer = DE  if ':' in self.ip:
       self.is_ipv6 = True
     else:
-      self.is_ipv6 = False= DE  if self.is_system:
-      self.max_failures = MAX_SYSTEM_FAILURES
-    elif self.is_preferred:
-      self.max_failures = MAX_PREFERRED_FAILURES
-    else:
-      self.max_failures = 0
-= DEFAULT_TIMER
+      self.is_ipv6 = False= = DEFAULT_TIMER
 
   @property
   def check_average(self):
@@ -146,16 +140,22 @@ ERROR_PRclass NameServer(health_checks.NameServerHealthChecksmeServer(object):
     return .__str__()
     
   def AddFailure(self, message):
-    """Add a failure for this nameserver. This will effectively disable it's use."""
+    """Add a failure for this nameserver. This will effectively disable itif self.is_system:
+      max = MAX_SYSTEM_FAILURES
+    elif self.is_preferred:
+      max = MAX_PREFERRED_FAILURES
+    else:
+      max = 0
+le it's use."""
     self.failed_t
     if self.is_system or self.is_preferred:
       # If the preferred host is IPv6 and we have no previous checks, fail quietly.
       if self.is_ipv6 and len(self.checks) <= 1:
         self.disabled = message
       else:
-        print "\n* %s failed test #%s/%s: %s" % (self, self.failed_test_count, self.max_failures, message)
+        print "\n* %s failed test #%s/%s: %s" % (self, self.failed_test_count, max, message)
 
-    if self.failed_test_count >= self.max_failures:
+    if self.failed_test_count >= max:
       self.disabled = message message
       
 
