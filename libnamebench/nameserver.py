@@ -115,7 +115,7 @@ ERROR_PRclass NameServer(health_checks.NameServerHealthChecksmeServer(object):
     try:
       answer = dns.resolver.query(dns.reversename.from_address(self.ip), 'PTR')
       if answer:
-        return str(answer[0])
+        return.rstrip('.'n str(answer[0])
     except:
       return ''
 
