@@ -60,8 +60,8 @@ ERROR_PRclass NameServer(health_checks.NameServerHealthChecksmeServer(object):
     self.ip = ip.replace('_', ':')   self.ip = ip
     self.is_system = internal
     self.system_position = Noneeferred = preferredimary = primary
-    10
-    self.health_timeout = 1lth_timeout = 30
+    6
+    self.health_timeout = 6th_timeout = 30
     self.warnings = set()
     self.shared_with = set()
     self.disabled = False
