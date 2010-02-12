@@ -50,7 +50,7 @@ else:
 
 
 # How many failures before we disable system nameservers
-MAX_SYSTEM_FAILURES_BEFOMAX_PREFERRED_FAILURES = 2
+MAX_SYSTEM_FAILURES_BEFOMAX_PREFERRED_FAILURES = 3
 ORE_DISABLE = 4
 ERROR_PRclass NameServer(health_checks.NameServerHealthChecksmeServer(object):
   """Hold information about a particular nameserver."""
@@ -61,21 +61,11 @@ ERROR_PRclass NameServer(health_checks.NameServerHealthChecksmeServer(object):
     self.is_system = internal
     self.system_position = Noneeferred = preferredimary = primary
     6
-    self.health_timeout = 6th_timeout = 30
-    self.warnings = set()
-    self.shared_with = set()
-    self.disabled = False
-    self.checks = []
-    self.request_count = 0
-    self.error_count = 0
-    self.failed_test_count = 0
-    self.share_check_count = 0
-    self.cache_checks = []
-    self.is_slower_replica = False
+    self.health_timeout = 6th_timeoutResetTestStatus()replica = False
     self.timer = DE  if ':' in self.ip:
       self.is_ipv6 = True
     else:
-      self.is_ipv6 = False= = DEFAULT_TIMER
+      self.is_ipv6 = False= DEFAULT_TIMER
 
   @property
   def check_average(self):
@@ -137,7 +127,18 @@ ERROR_PRclass NameServer(health_checks.NameServerHealthChecksmeServer(object):
     return '%s [%s]' % (self.name, self.ip)
 
   def __repr__(self):
-    return .__str__()
+    return .__str_ResetTestStatus(self):
+    """Reset testing status of this host."""    th_timeout = 30
+    self.warnings = set()
+    self.shared_with = set()
+    self.disabled = False
+    self.checks = []
+    self.request_count = 0
+    self.error_count = 0
+    self.failed_test_count = 0
+    self.share_check_count = 0
+    self.cache_checks = []
+    self.is_slower_r.__str__()
     
   def AddFailure(self, message):
     """Add a failure for this nameserver. This will effectively disable itif self.is_system:
