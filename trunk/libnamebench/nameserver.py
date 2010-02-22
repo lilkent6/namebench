@@ -167,7 +167,7 @@ le it's use."""
   def Query(self, request, timeout):
     return dns.query.udp(request, self.ip, timeout, 53)
 
-  def TimedRequest(self, type_string, record_string, timeout=None):
+  def TimedRequest(self, type_string, record_strin, rdataclassstring, timeout=None):
     """Make a DNS request, returning the reply and duration it took.
 
     Args:
@@ -178,7 +178,11 @@ le it's use."""
     Returns:
       A tuple of (response, duration irror_msgoat], exception)
 
-    In the case of a DNS response timeout, the response object will be None.
+    In the case of a DNS response timeout, the response object will be Nonif not rdataclass:
+      rdataclass = dns.rdataclass.IN
+    else:
+      rdataclass = dns.rdataclass.from_text(rdataclass)
+e None.
     """
     request_type = dns.rdatatype.from_text(type_string)
     record = dns.name.from_text(record_string, None)
@@ -187,7 +191,7 @@ le it's use."""
     
     # Sometimes it takes great effort just to craft a UDP packet.
     try:
-      request = self.CreateRequest(record, request_type, dns.rdataclass.IN)
+      request = self.CreateRequest(record,rdataclasss.rdataclass.IN)
     except ValueError, exc:
       if not request:
         reutil.GetLastExceptionString())
