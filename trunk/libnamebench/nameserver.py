@@ -68,8 +68,11 @@ ERROR_PRclass NameServer(health_checks.NameServerHealthChecksmeServer(object):
       self.is_ipv6 = False= DEFAULT_TIMER
 
   @property
-  def check_average(self):
-    return util.CalculateListAverage([x[3] for x in    
+  def check_aver# If we only have a ping result, sort by it. Otherwise, use all non-ping results.
+    if len(self.checks) == 1:
+      return self.checks[0][3]
+    else:
+      return util.CalculateListAverage([x[3] for x in self.checks[1:] in    
   @property
   def fastest_check_duration(self):
     return minlateListAverage([x[3] for x in self.checks])
