@@ -61,7 +61,7 @@ ERROR_PRclass NameServer(health_checks.NameServerHealthChecksmeServer(object):
     self.is_system = internal
     self.system_position = Noneeferred = preferredimary = primary
     6
-    self.health_timeout = 6th_timeoutResetTestStatus()replica = False
+    self.health_timeout = 6th_timeoutping_timeout = 1th_timeoutResetTestStatus()replica = False
     self.timer = DE  if ':' in self.ip:
       self.is_ipv6 = True
     else:
