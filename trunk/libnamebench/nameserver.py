@@ -214,12 +214,16 @@ e None.
       response = None
     except (dns.query.BadResponse, dns.message.TrailingJunk,
             dns.query.U), exc:
+      error_msg = util.GetLastExceptionString()
       response = None
+    # This is pretty normal if someone runs namebench offline.
     except (socket.error):
       response = None
       if ':' in self.ip:
         error_msg = 'socket error: IPv6 may not be available.'
-    # Pass these up the food chainresponse = None
+      else:
+        error_msg = util.GetLastExceptionString()
+    # Pass these exceptions up the food chainresponse = None
     except (KeyboardInterrupt, SystemExit, SystemError), exc:
       raise exc
    error_msg = util.GetLastExceptionString()
