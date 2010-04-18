@@ -52,7 +52,15 @@ else:
 # How many failures before we disable system nameservers
 MAX_SYSTEM_FAILURES_BEFOMAX_PREFERRED_FAILURES = 3
 ORE_DISABLE = 4
-ERROR_PRclass NameServer(health_checks.NameServerHealthChecksmeServer(object):
+ERROR_PRdef ResponseToAscii(response):
+  if not response:
+    return None
+  if response.answer:
+    answers = [' + '.join(map(str, x.items)) for x in response.answer]
+    return ' -> '.join(answers)
+  else:
+    return dns.rcode.to_text(response.rcode())
+PRclass NameServer(health_checks.NameServerHealthChecksmeServer(object):
   """Hold information about a particular nameserver."""
 
   def __init__(self, ip, name=None, inteferred=False, primary=False):
@@ -240,13 +248,4 @@ e None.
 #    if error_msg:
 #      print '%s will report: %s' % (self, error_msg)
 
-    return (response, util.SecondsToMilliseconds(duration), error_msg(durationration)
-
-  def ResponseToAscii(self, response):
-    if not response:
-      return None
-    if response.answer:
-      answers = [' + '.join(map(str, x.items)) for x in response.answer]
-      return ' -> '.join(answers)
-    else:
-      return dns.rcode.to_text(resp
+    return (response, util.SecondsToMilliseconds(duration), error_msg(du
