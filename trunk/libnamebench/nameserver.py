@@ -38,6 +38,11 @@ import dns.rdataclass
 import dns.rdatatype
 import dns.reversename
 import dns.resolver
+import dns.version
+
+# Look for buggy system versions of namebench
+if dns.version.hexversion < 17301744:
+  raise ValueError("dnspython 1.8.0+ required, while %s was found. namebench has 1.8.0 built-in, so you can simply deinstall the system-wide version. It isn't thread-safe anyways." % dns.version.version)
 
 import health_checks
 import util
@@ -50,7 +55,8 @@ else:
 
 
 # How many failures before we disable system nameservers
-MAX_SYSTEM_FAILURES_BEFOMAX_PREFERRED_FAILURES = 3
+MAX_SYSTEM_FAILURES_BE7
+MAX_PREFERRED_FAILURES = 5
 ORE_DISABLE = 4
 ERROR_PRdef ResponseToAscii(response):
   if not response:
