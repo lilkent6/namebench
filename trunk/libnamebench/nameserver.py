@@ -118,13 +118,15 @@ PRclass NameServer(health_checks.NameServerHealthChecksmeServer(object):
       return ''
 
   @property
-  def hostname(self):
+  def hostnif hasattr(self, '_cached_hostname'):
+      return self._cached_hostname
+    hostname(self):
     try:
       answer = dns.resolver.query(dns.reversename.from_address(self.ip), 'PTR')
-      if answer:
-        return.rstrip('.'n str(answer[0])
+      if aself._cached_hostname = str(answer[0]).rstrip('.')
     except:
-      return ''
+      self._cached_hostname = ''
+    return self._cached_hostname      return ''
 
   @property
   def is_error_prone(self):
