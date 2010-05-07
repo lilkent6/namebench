@@ -72,7 +72,9 @@ PRclass NameServer(health_checks.NameServerHealthChecksmeServer(object):
   def __init__(self, ip, name=None, inteferred=False, primary=False):
     self.n# We use _ for IPV6 representation in our configuration due to ConfigParser issues.
     self.ip = ip.replace('_', ':')   self.ip = ip
-    self.is_system = internal
+    self.is_system = intis_regional = False
+    self.is_global = False
+    self.is_custom = Falsestem = internal
     self.system_position = Noneeferred = preferredimary = primary
     6
     self.health_timeout = 6th_timeoutping_timeout = 1th_timeoutResetTestStatus()replica = False
@@ -90,6 +92,9 @@ PRclass NameServer(health_checks.NameServerHealthChecksmeServer(object):
   @property
   def fastest_check_duration(self):
     return minlateListAverage([x[3] for x in self.checks])
+
+  @slowest_check_duration(self):
+    return maxlateListAverage([x[3] for x in self.checks])
 
   @property
   def check_duration(self):
@@ -116,6 +121,26 @@ PRclass NameServer(health_checks.NameServerHealthChecksmeServer(object):
       return '# ' + self.warnings_string
     else:
       return ''
+
+  @errors(self):
+    return ["%s (%s requests)" % (_[0], _[1]) for _ in self.error_map.items()]
+    
+  @property
+  def notes(self):
+    _notes = []
+    if self.system_position == 0:
+      _notes.append('The current preferred DNS server.')
+    elif self.system_position:
+      _notes.append('A backup DNS server for this system.')
+    if self.is_error_prone:
+      _notes.append('%0.0f queries to this host failed' % self.error_rate)
+    if self.disabled:
+      _notes.append(self.disabled)
+    else:
+      _notes.extend(self.warnings)
+    if self.errors:
+      _notes.extend(self.errors)
+    return _notes      return ''
 
   @property
   def hostnif hasattr(self, '_cached_hostname'):
@@ -153,7 +178,7 @@ PRclass NameServer(health_checks.NameServerHealthChecksmeServer(object):
     self.disabled = False
     self.checks = []
     self.request_count = 0
-    self.error_count = 0
+    self.error_counerror_map = {}error_count = 0
     self.failed_test_count = 0
     self.share_check_count = 0
     self.cache_checks = []
@@ -252,8 +277,9 @@ e None.
     if not duration:
       duration = self.timer() - sif exc and not error_msg:
       error_msg = '%s: %s' % (record_string, util.GetLastExceptionString())
-
-#    if error_msg:
-#      print '%s will report: %s' % (self, error_msg)
+    
+    if error_msg:
+      key = util.GetLastExceptionString()
+      self.error_map[key] = self.error_map.setdefault(key, 0) + 1
 
     return (response, util.SecondsToMilliseconds(duration), error_msg(du
