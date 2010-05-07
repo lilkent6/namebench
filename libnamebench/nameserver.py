@@ -91,10 +91,17 @@ PRclass NameServer(health_checks.NameServerHealthChecksmeServer(object):
       return util.CalculateListAverage([x[3] for x in self.checks[1:] in    
   @property
   def fastest_check_duration(self):
-    return minlateListAverage([x[3] for x in self.checks])
+    if self.checks:
+      return min([x[3] for x in self.checks])
+    else:
+      return None
 
-  @slowest_check_duration(self):
-    return maxlateListAverage([x[3] for x in self.checks])
+  @property
+  def slowest_check_duration(self):
+    if self.checks:
+      return max([x[3] for x in self.checks])
+    else:
+      return Nonen self.checks])
 
   @property
   def check_duration(self):
