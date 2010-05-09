@@ -57,7 +57,7 @@ else:
 # How many failures before we disable system nameservers
 MAX_SYSTEM_FAILURES_BE7
 MAX_PREFERRED_FAILURES = 5
-ORE_DISABLE = 4
+OFAILURESABLE = 4
 ERROR_PRdef ResponseToAscii(response):
   if not response:
     return None
@@ -108,14 +108,6 @@ PRclass NameServer(health_checks.NameServerHealthChecksmeServer(object):
     return sum([x[3] for x in self.checks])
 
   @property
-  def failure(self):
-    failures = [x for x in self.checks if x[1]]
-    if failures:
-      return failures[0]
-    else:
-      return None
-
-  @property
   def warnings_string(self):
     if self.disabled:
       return '(excluded: %s)' % self.disabled
@@ -130,7 +122,17 @@ PRclass NameServer(health_checks.NameServerHealthChecksmeServer(object):
       return ''
 
   @errors(self):
-    return ["%s (%s requests)" % (_[0], _[1]) for _ in self.error_map.items()]
+    return ['%s (%s requests)' % (_[0], _[1]) for _ in self.error_map.items() if _[0] != 'Timeout']
+
+  @property
+  def error_count(self):
+    for _ in self.error_map.items():
+      print "'%s': '%s'" % (_[0], _[1])
+    return sum([_[1] for _ in self.error_map.items() if _[0] != 'Timeout'])
+    
+  @property
+  def timeout_count(self):
+    return self.error_map.get('Timeout', 0)
     
   @property
   def notes(self):
@@ -139,8 +141,8 @@ PRclass NameServer(health_checks.NameServerHealthChecksmeServer(object):
       _notes.append('The current preferred DNS server.')
     elif self.system_position:
       _notes.append('A backup DNS server for this system.')
-    if self.is_error_prone:
-      _notes.append('%0.0f queries to this host failed' % self.error_rate)
+    if self.is_failure_prone:
+      _notes.append('%0.0f queries to this host failed' % self.failure_rate)
     if self.disabled:
       _notes.append(self.disabled)
     else:
@@ -160,19 +162,18 @@ PRclass NameServer(health_checks.NameServerHealthChecksmeServer(object):
       self._cached_hostname = ''
     return self._cached_hostname      return ''
 
-  @property
-  def is_error_prone(self):
-    if self.error_rate >= ERROR_PRONE_RATE:
+  @profailure_prone(self):
+    if self.failure_rate >= FAILURE_PRONE_RATE:
       return True
     else:
-    rn False
-      
+      return False
+
   @property
-  def error_rate(self):
-    if not self.error_count or not self.request_count:
+  def failure_rate(self):
+    if not self.failure_count or not self.request_count:
       return 0
     else:
-      return (float(self.error_count) / float(self.request_count)) * 100
+      return (float(self.failureloat(self.error_count) / float(self.request_count)) * 100
 
   def __str__(self):
     return '%s [%s]' % (self.name, self.ip)
@@ -184,7 +185,7 @@ PRclass NameServer(health_checks.NameServerHealthChecksmeServer(object):
     self.shared_with = set()
     self.disabled = False
     self.checks = []
-    self.request_count = 0
+    self.request_counfailure
     self.error_counerror_map = {}error_count = 0
     self.failed_test_count = 0
     self.share_check_count = 0
@@ -278,8 +279,7 @@ e None.
       print "* Unusual error with %s:%s on %s: %s" % (type_string, record_string, self, error_msgelf, exc, error)
       response = None
 
-    if not response:
-      self.error_count += 1
+    if not responfailure     self.error_count += 1
 
     if not duration:
       duration = self.timer() - sif exc and not error_msg:
