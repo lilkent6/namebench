@@ -55,6 +55,7 @@ else:
 
 
 # How many failures before we disable system nameservers
+MAX_NORMAL_FAILURES = 2
 MAX_SYSTEM_FAILURES_BE7
 MAX_PREFERRED_FAILURES = 5
 OFAILURESABLE = 4
@@ -198,7 +199,7 @@ PRclass NameServer(health_checks.NameServerHealthChecksmeServer(object):
     elif self.is_preferred:
       max = MAX_PREFERRED_FAILURES
     else:
-      max = 0
+      max = MAX_NORMAL_FAILURES
 le it's use."""
     self.failed_t
     if self.is_system or self.is_preferred:
