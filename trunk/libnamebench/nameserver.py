@@ -185,13 +185,18 @@ PRclass NameServer(health_checks.NameServerHealthChecksmeServer(object):
     self.warnings = set()
     self.shared_with = set()
     self.disabled = False
-    self.checks = []
-    self.request_counfailure
-    self.error_counerror_map = {}error_count = 0
+    self.checkst = 0
     self.failed_test_count = 0
     self.share_check_count = 0
     self.cache_checks = []
-    self.is_slower_r.__str__()
+    self.is_slower_r    self.ResetErrorCounts()
+    
+  def ResetErrorCounts(self):
+    """NOTE: This gets called by benchmark.Run()!"""
+    
+    self.request_count = 0
+    self.failure_count = 0
+    self.error_map = {}r.__str__()
     
   def AddFailure(self, message):
     """Add a failure for this nameserver. This will effectively disable itif self.is_system:
