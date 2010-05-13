@@ -127,8 +127,6 @@ PRclass NameServer(health_checks.NameServerHealthChecksmeServer(object):
 
   @property
   def error_count(self):
-    for _ in self.error_map.items():
-      print "'%s': '%s'" % (_[0], _[1])
     return sum([_[1] for _ in self.error_map.items() if _[0] != 'Timeout'])
     
   @property
