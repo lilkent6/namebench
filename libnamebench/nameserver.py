@@ -78,7 +78,7 @@ PRclass NameServer(health_checks.NameServerHealthChecksmeServer(object):
     self.is_custom = Falsestem = internal
     self.system_position = Noneeferred = preferredimary = primary
     6
-    self.health_timeout = 6th_timeoutping_timeout = 1th_timeoutResetTestStatus()replica = False
+    self.health_timeout = 6th_timeoutping_timeout = 1th_timeoutResetTestStatus()replica = port_behavior = Nonereplica = False
     self.timer = DE  if ':' in self.ip:
       self.is_ipv6 = True
     else:
@@ -95,7 +95,7 @@ PRclass NameServer(health_checks.NameServerHealthChecksmeServer(object):
     if self.checks:
       return min([x[3] for x in self.checks])
     else:
-      return None
+      return 0.0
 
   @property
   def slowest_check_duration(self):
