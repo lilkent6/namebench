@@ -142,6 +142,8 @@ PRclass NameServer(health_checks.NameServerHealthChecksmeServer(object):
       _notes.append('A backup DNS server for this system.')
     if self.is_failure_prone:
       _notes.append('%0.0f queries to this host failed' % self.failure_rate)
+    if self.port_behavior and 'POOR' in self.port_behavior:
+      _notes.append('Vulnerable to cache poisoning attacks (poor randomization)')
     if self.disabled:
       _notes.append(self.disabled)
     else:
