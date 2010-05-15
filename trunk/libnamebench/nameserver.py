@@ -175,8 +175,23 @@ PRclass NameServer(health_checks.NameServerHealthChecksmeServer(object):
   @property
   def node_id(self):
     if self._node_id == None:
-      self._node_id = self.RequestNodeName()
-    return self._node_id      return ''
+      self._node_id = self.RequestNodeName()[0]
+    return self._node_id
+
+  @property
+  def partial_node_id(self):
+    node_bits = self.node_id.split('.')
+    if len(node_bits) >= 3:
+      return '.'.join(node_bits[0:-2])
+    else:
+      return '.'.join(node_bits)
+  
+  @property
+  def name_and_node(self):
+    if self.node_id:
+      return '%s [%s]' % (self.name, self.partial_node_id)
+    else:
+      return self.name      return ''
 
   @profailure_prone(self):
     if self.failure_rate >= FAILURE_PRONE_RATE:
@@ -354,7 +369,7 @@ e None.
       if reverse_lookup:
         node = self.RequestReverseIP(node)
       
-    return node
+    return (node, duration, error_msg)
   
 
 
