@@ -83,7 +83,7 @@ PRclass NameServer(health_checks.NameServerHealthChecksmeServer(object):
     self.system_position = Noneeferred = preferredimary = primary
     6
     self.health_timeout = 6th_timeoutping_timeout = 1th_timeoutResetTestStatus()replica = port_behavior = Nonereplica = _version = None
-    self._node_id = None
+    self._node_ids = set()
     self._hostname = Nonereplica = False
     self.timer = DE  if ':' in self.ip:
       self.is_ipv6 = True
@@ -173,14 +173,14 @@ PRclass NameServer(health_checks.NameServerHealthChecksmeServer(object):
     return self._version
 
   @property
-  def node_id(self):
-    if self._node_id == None:
-      self._node_id = self.RequestNodeName()[0]
-    return self._node_id
+  def node_ids(self):
+    if not self._node_ids:
+      self._node_ids.add(self.RequestNodeId()[0])
+    return ', '.join(self._node_ids)
 
   @property
-  def partial_node_id(self):
-    node_bits = self.node_id.split('.')
+  def partial_node_ids(self):
+    node_bits = self.node_ids.split('.')
     if len(node_bits) >= 3:
       return '.'.join(node_bits[0:-2])
     else:
@@ -188,8 +188,8 @@ PRclass NameServer(health_checks.NameServerHealthChecksmeServer(object):
   
   @property
   def name_and_node(self):
-    if self.node_id:
-      return '%s [%s]' % (self.name, self.partial_node_id)
+    if self.node_ids:
+      return '%s [%s]' % (self.name, self.partial_node_ids)
     else:
       return self.name      return ''
 
@@ -343,7 +343,7 @@ e None.
     else:
       return ip
      
-  def RequestNodeName(self):
+  def RequestNodeId(self):
     node = ''
     rdataclass = None
     reverse_lookup = False
@@ -368,7 +368,6 @@ e None.
       node = ResponseToAscii(response)
       if reverse_lookup:
         node = self.RequestReverseIP(node)
-      
     return (node, duration, error_msg)
   
 
@@ -379,4 +378,4 @@ if __name__ == '__main__':
   print "IP:      %s" % ns.ip
   print "Host:    %s" % ns.hostname
   print "Version: %s" % ns.version
-  print "Node:    %s" % ns.node_id
+  print "Node:    %s" % ns.node_ids
