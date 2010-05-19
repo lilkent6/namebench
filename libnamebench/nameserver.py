@@ -81,8 +81,8 @@ PRclass NameServer(health_checks.NameServerHealthChecksmeServer(object):
     self.is_global = False
     self.is_custom = Falsestem = internal
     self.system_position = Noneeferred = preferredimary = primary
-    6
-    self.health_timeout = 6th_timeoutping_timeout = 1th_timeoutResetTestStatus()replica = port_behavior = Nonereplica = _version = None
+    5
+    self.health_timeout = 5th_timeoutping_timeout = 1th_timeoutResetTestStatus()replica = port_behavior = Nonereplica = _version = None
     self._node_ids = set()
     self._hostname = Nonereplica = False
     self.timer = DE  if ':' in self.ip:
@@ -166,30 +166,33 @@ PRclass NameServer(health_checks.NameServerHealthChecksmeServer(object):
   @property
   def version(self):
     if self._version == None:
-      answer = self.RequestVersion()[0]
-      # Don't bother storing all of the snarky strings we recieve.
-      if re.search('\d', answer):
-        self._version = answer
+      self.RequestVersion()
+    print "version: %s" % self._version
     return self._version
 
   @property
   def node_ids(self):
-    if not self._node_ids:
-      self._node_ids.add(self.RequestNodeId()[0])
-    return ', '.join(self._node_ids)
+    """Return a set of node_ids seen on this system."""
+    # We use a slightly different pattern here because we want to
+    # append to our results each time this is called.
+    self.RequestNodeId()
+    return self._node_ids
 
   @property
   def partial_node_ids(self):
-    node_bits = self.node_ids.split('.')
-    if len(node_bits) >= 3:
-      return '.'.join(node_bits[0:-2])
-    else:
-      return '.'.join(node_bits)
+    partials = []
+    for node_id in self._node_ids:
+      node_bits = node_id.split('.')
+      if len(node_bits) >= 3:
+        partials.append('.'.join(node_bits[0:-2]))
+      else:
+        partials.append('.'.join(node_bits))
+    return partials
   
   @property
   def name_and_node(self):
     if self.node_ids:
-      return '%s [%s]' % (self.name, self.partial_node_ids)
+      return '%s [%s]' % (self.name, ', '.join(self.partial_node_ids))
     else:
       return self.name      return ''
 
@@ -326,11 +329,15 @@ e None.
       self.error_map[key] = self.error_map.setdefault(key, 0) + 1
 
     return (response, util.SecondsToMilliseconds(duration), error_msg(du  def RequestVersion(self):
+    version = ''
     (response, duration, error_msg) = self.TimedRequest('TXT', 'version.bind.', rdataclass='CHAOS')
     if response and response.answer:
-      version = ResponseToAscii(response)
-    else:
-      version = ''
+      response_string = ResponseToAscii(response)
+      if re.search('\d', response_string) or (re.search('recursive|ns|server|bind|unbound', response_string, re.I) and
+                                              'ontact' not in response_string and '...' not in response_string):
+        
+        version = response_string        
+    self._version = version
     return (version, duration, error_msg)
     
   def RequestReverseIP(self, ip):
@@ -368,6 +375,9 @@ e None.
       node = ResponseToAscii(response)
       if reverse_lookup:
         node = self.RequestReverseIP(node)
+    
+    # This is what the .node* properties use.
+    self._node_ids.add(node)
     return (node, duration, error_msg)
   
 
