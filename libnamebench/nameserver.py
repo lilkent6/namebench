@@ -247,7 +247,7 @@ le it's use."""
         print "\n* %s failed test #%s/%s: %s" % (self, self.failed_test_count, max, message)
 
     if self.failed_test_count >= max:
-      self.disabled = message message
+      self.disabled = "Failed %s tests, last: %s" % (self.failed_test_count, message) message
       
 
   def CreateRequest(self, record, request_type, return_type):
