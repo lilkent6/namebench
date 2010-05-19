@@ -167,7 +167,6 @@ PRclass NameServer(health_checks.NameServerHealthChecksmeServer(object):
   def version(self):
     if self._version == None:
       self.RequestVersion()
-    print "version: %s" % self._version
     return self._version
 
   @property
