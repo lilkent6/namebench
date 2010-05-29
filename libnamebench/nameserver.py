@@ -16,13 +16,13 @@
 
 __author__ = 'tstromberg@google.com (Thomas Stromberg)'
 
+#if __name__ == '__main__':
+#  sys.path.append('..')
+
 import re
 import socket
 import sys
 import time
-
-if __name__ == '__main__':
-  sys.path.append('..')
 
 # external dependencies (from nb_third_party)
 import dns.exception
@@ -328,9 +328,9 @@ e None.
     (response, duration, error_msg) = self.TimedRequest('TXT', 'version.bind.', rdataclass='CHAOS')
     if response and response.answer:
       response_string = ResponseToAscii(response)
-      if re.search('\d', response_string) or (re.search('recursive|ns|server|bind|unbound', response_string, re.I) and
-                                              'ontact' not in response_string and '...' not in response_string):
-
+      if (re.search('\d', response_string) or
+          (re.search('recursive|ns|server|bind|unbound', response_string, re.I)
+           and 'ontact' not in response_string and '...' not in response_string)):
         version = response_string
     self._version = version
     return (version, duration, error_msg)
