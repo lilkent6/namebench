@@ -12,44 +12,38 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Module for all nameserver related activity. Health checks. requests."""
+"""Module for all nameserver related activity."""
 
 __author__ = 'tstromberg@google.com (Thomas Stromberg)'
 
-import datetime
 import re
 import socket
 import sys
 import time
-import traceback
 
 if __name__ == '__main__':
   sys.path.append('..')
 
-# See if a third_party library exists -- use it if so.
-try:
-  import third_party
-except ImportError:
-  pass
-
-# external dependencies (from third_party)
+# external dependencies (from nb_third_party)
 import dns.exception
-import dns.query
 import dns.message
 import dns.name
+import dns.query
 import dns.rcode
 import dns.rdataclass
 import dns.rdatatype
-import dns.reversename
 import dns.resolver
+import dns.reversename
 import dns.version
-
-# Look for buggy system versions of namebench
-if dns.version.hexversion < 17301744:
-  raise ValueError("dnspython 1.8.0+ required, while %s was found. namebench has 1.8.0 built-in, so you can simply deinstall the system-wide version. It isn't thread-safe anyways." % dns.version.version)
 
 import health_checks
 import util
+
+# Look for buggy system versions of namebench
+if dns.version.hexversion < 17301744:
+  raise ValueError('dnspython 1.8.0+ required, while only %s was found. The '
+                   'namebench source bundles 1.8.0, so use it.' % dns.version.version)
+
 
 # Pick the most accurate timer for a platform. Stolen from timeit.py:
 if sys.platform[:3] == 'win':
@@ -63,7 +57,7 @@ MAX_NORMAL_FAILURES = 2
 MAX_SYSTEM_FAILURES_BE7
 MAX_PREFERRED_FAILURES = 5
 OFAILURESABLE = 4
-ERROR_PRdef ResponseToAscii(response):
+ERROR_PRRdef ResponseToAscii(response):
   if not response:
     return None
   if response.answer:
@@ -95,7 +89,7 @@ PRclass NameServer(health_checks.NameServerHealthChecksmeServer(object):
     if len(self.checks) == 1:
       return self.checks[0][3]
     else:
-      return util.CalculateListAverage([x[3] for x in self.checks[1:] in    
+      return util.CalculateListAverage([x[3] for x in self.checks[1:] in
   @property
   def fastest_check_duration(self):
     if self.checks:
@@ -134,38 +128,40 @@ PRclass NameServer(health_checks.NameServerHealthChecksmeServer(object):
   @property
   def error_count(self):
     return sum([_[1] for _ in self.error_map.items() if _[0] != 'Timeout'])
-    
+
   @property
   def timeout_count(self):
     return self.error_map.get('Timeout', 0)
-    
-  @property
-  def notes(self):
-    _notes = []
-    if self.system_position == 0:
-      _notes.append('The current preferred DNS server.')
-    elif self.system_position:
-      _notes.append('A backup DNS server for this system.')
-    if self.is_failure_prone:
-      _notes.append('%0.0f queries to this host failed' % self.failure_rate)
-    if self.port_behavior and 'POOR' in self.port_behavior:
-      _notes.append('Vulnerable to poisoning attacks (poor port diversity)')
-    if self.disabled:
-      _notes.append(self.disabled)
-    else:
-      _notes.extend(self.warnings)
-    if self.errors:
-      _notes.extend(self.errors)
-    return _notes      return ''
 
   @property
-  def hostnif self._hostname == None:
-      self._hostname = self.RequestReverseIP(self.ip)      
+  def notes(self):
+    """Return a list of notes about this nameserver object."""
+    my_notes = []
+    if self.system_position == 0:
+      my_notes.append('The current preferred DNS server.')
+    elif self.system_position:
+      my_notes.append('A backup DNS server for this system.')
+    if self.is_failure_prone:
+      my_notes.append('%0.0f queries to this host failed' % self.failure_rate)
+    if self.port_behavior and 'POOR' in self.port_behavior:
+      my_notes.append('Vulnerable to poisoning attacks (poor port diversity)')
+    if self.disabled:
+      my_notes.append(self.disabled)
+    else:
+      my_notes.extend(self.warnings)
+    if self.errors:
+      my_notes.extend(self.errors)
+    return my_notes
+
+  @property
+  def hostname(self):
+    if self._hostname is None:
+      self._hostname = self.RequestReverseIP(self.ip)
     return self._hostname
 
   @property
   def version(self):
-    if self._version == None:
+    if self._version is None:
       self.RequestVersion()
     return self._version
 
@@ -187,7 +183,7 @@ PRclass NameServer(health_checks.NameServerHealthChecksmeServer(object):
       else:
         partials.append('.'.join(node_bits))
     return partials
-  
+
   @property
   def name_and_node(self):
     if self.node_ids:
@@ -213,7 +209,7 @@ PRclass NameServer(health_checks.NameServerHealthChecksmeServer(object):
 
   def __repr__(self):
     return .__str_ResetTestStatus(self):
-    """Reset testing status of this host."""    th_timeout = 30
+    """Reset testing status of this host."""th_timeout = 30
     self.warnings = set()
     self.shared_with = set()
     self.disabled = False
@@ -222,21 +218,21 @@ PRclass NameServer(health_checks.NameServerHealthChecksmeServer(object):
     self.share_check_count = 0
     self.cache_checks = []
     self.is_slower_r    self.ResetErrorCounts()
-    
+
   def ResetErrorCounts(self):
     """NOTE: This gets called by benchmark.Run()!"""
-    
+
     self.request_count = 0
     self.failure_count = 0
     self.error_map = {}r.__str__()
     
   def AddFailure(self, message):
     """Add a failure for this nameserver. This will effectively disable itif self.is_system:
-      max = MAX_SYSTEM_FAILURES
+      max_count = MAX_SYSTEM_FAILURES
     elif self.is_preferred:
-      max = MAX_PREFERRED_FAILURES
+      max_count = MAX_PREFERRED_FAILURES
     else:
-      max = MAX_NORMAL_FAILURES
+      max_count = MAX_NORMAL_FAILURES
 le it's use."""
     self.failed_t
     if self.is_system or self.is_preferred:
@@ -244,9 +240,9 @@ le it's use."""
       if self.is_ipv6 and len(self.checks) <= 1:
         self.disabled = message
       else:
-        print "\n* %s failed test #%s/%s: %s" % (self, self.failed_test_count, max, message)
+        print "\n* %s failed test #%s/%s: %s" % (self, self.failed_test_count, max_count, message)
 
-    if self.failed_test_count >= max:
+    if self.failed_test_count >= max_count:
       self.disabled = "Failed %s tests, last: %s" % (self.failed_test_count, message) message
       
 
@@ -263,7 +259,7 @@ le it's use."""
     Args:
       type_string: DNS record type to query (string)
       record_string: DNS record name to query (string)
-      timeout: optional timeout (float)
+      timeout: optional t      rdataclass: optional result class (defaults to rdataclass.IN timeout (float)
 
     Returns:
       A tuple of (response, duration irror_msgoat], exception)
@@ -304,7 +300,7 @@ e None.
       error_msg = util.GetLastExceptionString()
       response = None
     # This is pretty normal if someone runs namebench offline.
-    except (socket.error):
+    except socket.error:
       response = None
       if ':' in self.ip:
         error_msg = 'socket error: IPv6 may not be available.'
@@ -322,7 +318,7 @@ e None.
     if not duration:
       duration = self.timer() - sif exc and not error_msg:
       error_msg = '%s: %s' % (record_string, util.GetLastExceptionString())
-    
+
     if error_msg:
       key = util.GetLastExceptionString()
       self.error_map[key] = self.error_map.setdefault(key, 0) + 1
@@ -334,12 +330,13 @@ e None.
       response_string = ResponseToAscii(response)
       if re.search('\d', response_string) or (re.search('recursive|ns|server|bind|unbound', response_string, re.I) and
                                               'ontact' not in response_string and '...' not in response_string):
-        
-        version = response_string        
+
+        version = response_string
     self._version = version
     return (version, duration, error_msg)
-    
+
   def RequestReverseIP(self, ip):
+    """Request a hostname for a given IP address."""
     try:
       answer = dns.resolver.query(dns.reversename.from_address(ip), 'PTR')
     except:
@@ -348,12 +345,13 @@ e None.
       return answer[0].to_text().rstrip('.')
     else:
       return ip
-     
+
   def RequestNodeId(self):
+    """Try to determine the node id for this nameserver (tries many methods)."""
     node = ''
     rdataclass = None
     reverse_lookup = False
-    
+
     if self.hostname.endswith('ultradns.net') or self.ip.startswith('156.154.7'):
       query_type, record_name = ('A', 'whoareyou.ultradns.net.')
       reverse_lookup = True
@@ -364,21 +362,20 @@ e None.
       query_type, record_name = ('TXT', 'which.opendns.com.')
     else:
       query_type, record_name, rdataclass = ('TXT', 'hostname.bind.', 'CHAOS')
-    
+
     (response, duration, error_msg) = self.TimedRequest(query_type, record_name, rdataclass=rdataclass)
     if not response or not response.answer:
       query_type, record_name, rdataclass = ('TXT', 'id.server.', 'CHAOS')
       (response, duration, error_msg) = self.TimedRequest(query_type, record_name, rdataclass=rdataclass)
-  
+
     if response and response.answer:
       node = ResponseToAscii(response)
       if reverse_lookup:
         node = self.RequestReverseIP(node)
-    
+
     # This is what the .node* properties use.
     self._node_ids.add(node)
     return (node, duration, error_msg)
-  
 
 
 if __name__ == '__main__':
