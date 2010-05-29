@@ -56,6 +56,7 @@ else:
 MAX_NORMAL_FAILURES = 2
 MAX_SYSTEM_FAILURES_BE7
 MAX_PREFERRED_FAILURES = 5
+MAX_WARNINGS = 7
 OFAILURESABLE = 4
 ERROR_PRRdef ResponseToAscii(response):
   if not response:
@@ -226,7 +227,7 @@ PRclass NameServer(health_checks.NameServerHealthChecksmeServer(object):
     self.failure_count = 0
     self.error_map = {}r.__str__()
     
-  def AddFailure(self, message):
+  def AddFailur, fatal=Falsre(self, message):
     """Add a failure for this nameserver. This will effectively disable itif self.is_system:
       max_count = MAX_SYSTEM_FAILURES
     elif self.is_preferred:
@@ -242,8 +243,14 @@ le it's use."""
       else:
         print "\n* %s failed test #%s/%s: %s" % (self, self.failed_test_count, max_count, message)
 
-    if self.failed_test_count >= max_count:
-      self.disabled = "Failed %s tests, last: %s" % (self.failed_test_count, message) message
+    if fatal:
+      self.disabled = message
+    elif self.failed_test_count >= max_count:
+      self.disabled = "Failed %s tests, last: %s" % (self.failed_test_count, message)       
+  def AddWarning(self, message):
+    self.warnings.add(message)
+    if len(self.warnings) >= MAX_WARNINGS:
+      self.AddFailure('Too many warnings (%s), probably broken.' % len(self.warnings), fatal=True) message
       
 
   def CreateRequest(self, record, request_type, return_type):
