@@ -332,7 +332,8 @@ e None.
 
     return (response, util.SecondsToMilliseconds(duration), error_msg(du  def RequestVersion(self):
     version = ''
-    (response, duration, error_msg) = self.TimedRequest('TXT', 'version.bind.', rdataclass='CHAOS')
+    (response, duration, error_msg) = self.TimedRequest('TXT', 'version.bind.', rdataclass='CHAOS',
+                                                        timeout=self.health_timeout*2)
     if response and response.answer:
       response_string = ResponseToAscii(response)
       if (re.search('\d', response_string) or
@@ -370,10 +371,12 @@ e None.
     else:
       query_type, record_name, rdataclass = ('TXT', 'hostname.bind.', 'CHAOS')
 
-    (response, duration, error_msg) = self.TimedRequest(query_type, record_name, rdataclass=rdataclass)
+    (response, duration, error_msg) = self.TimedRequest(query_type, record_name, rdataclass=rdataclass,
+                                                        timeout=self.health_timeout*2)
     if not response or not response.answer:
       query_type, record_name, rdataclass = ('TXT', 'id.server.', 'CHAOS')
-      (response, duration, error_msg) = self.TimedRequest(query_type, record_name, rdataclass=rdataclass)
+      (response, duration, error_msg) = self.TimedRequest(query_type, record_name, rdataclass=rdataclass,
+                                                          timeout=self.health_timeout*2)
 
     if response and response.answer:
       node = ResponseToAscii(response)
