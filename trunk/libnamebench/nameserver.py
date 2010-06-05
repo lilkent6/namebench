@@ -250,6 +250,10 @@ le it's use."""
     elif self.failed_test_count >= max_count:
       self.disabled = "Failed %s tests, last: %s" % (self.failed_test_count, message)       
   def AddWarning(self, message):
+    if not isinstance(message, str):
+      print "Tried to add %s to %s (not a string)" % (message, self)
+      return None
+    
     self.warnings.add(message)
     if len(self.warnings) >= MAX_WARNINGS:
       self.AddFailure('Too many warnings (%s), probably broken.' % len(self.warnings), fatal=True) message
@@ -366,7 +370,7 @@ e None.
       query_type, record_name = ('A', 'whoareyou.ultradns.net.')
       reverse_lookup = True
     elif self.ip.startswith('8.8'):
-      query_type, record_name = ('TXT', 'o-o.myaddr.google.com.')
+      query_type, record_name = ('A', 'self.myresolver.info.')
       reverse_lookup = True
     elif self.hostname.endswith('opendns.com') or self.ip.startswith('208.67.22'):
       query_type, record_name = ('TXT', 'which.opendns.com.')
