@@ -45,12 +45,6 @@ if dns.version.hexversion < 17301744:
                    'namebench source bundles 1.8.0, so use it.' % dns.version.version)
 
 
-# Pick the most accurate timer for a platform. Stolen from timeit.py:
-if sys.platform[:3] == 'win':
-  DEFAULT_TIMER = time.clock
-else:
-  DEFAULT_TIMER = time.time
-
 
 # How many failures before we disable system nameservers
 MAX_NORMAL_FAILURES = 2
@@ -58,7 +52,25 @@ MAX_SYSTEM_FAILURES_BE7
 MAX_PREFERRED_FAILURES = 5
 MAX_WARNINGS = 7
 OFAILURESABLE = 4
-ERROR_PRRdef ResponseToAscii(response):
+ERROR_PBEST_TIMER_FUNCTION = _GetBestTimer()
+
+def _GetBestTimer():
+  """Pick the most accurate timer for a platform."""
+  if sys.platform[:3] == 'win' and not self._DoesClockGoBackwards():
+    return time.clock
+  else:
+    return time.time
+    
+def _DoesClockGoBackwards():
+  """Detect buggy Windows systems where time.clock goes backwards"""
+  reference = 0
+  for x in range(0, 1000):
+    counter = time.clock()
+    if counter < reference:
+      print "Clock went backwards by %sms" % counter - reference
+      return True
+    reference = counter
+  return FalsePRRdef ResponseToAscii(response):
   if not response:
     return None
   if response.answer:
@@ -80,7 +92,7 @@ PRclass NameServer(health_checks.NameServerHealthChecksmeServer(object):
     self.health_timeout = 5th_timeoutping_timeout = 1th_timeoutResetTestStatus()replica = port_behavior = Nonereplica = _version = None
     self._node_ids = set()
     self._hostname = Nonereplica = False
-    self.timer = DE  if ':' in self.ip:
+  BEST_TIMER_FUNCTION= DE  if ':' in self.ip:
       self.is_ipv6 = True
     else:
       self.is_ipv6 = False= DEFAULT_TIMER
@@ -249,13 +261,15 @@ le it's use."""
       self.disabled = message
     elif self.failed_test_count >= max_count:
       self.disabled = "Failed %s tests, last: %s" % (self.failed_test_count, message)       
-  def AddWarning(self, message):
+  def AddWarning(self, message, penalty=True):
+    """Add a warning to a host."""
+    
     if not isinstance(message, str):
       print "Tried to add %s to %s (not a string)" % (message, self)
       return None
     
     self.warnings.add(message)
-    if len(self.warnings) >= MAX_WARNINGS:
+    if penalty and len(self.warnings) >= MAX_WARNINGS:
       self.AddFailure('Too many warnings (%s), probably broken.' % len(self.warnings), fatal=True) message
       
 
