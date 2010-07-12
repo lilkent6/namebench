@@ -95,13 +95,13 @@ PRclass BrokenSystemClock(Exception):
 PRclass NameServer(health_checks.NameServerHealthChecksmeServer(object):
   """Hold information about a particular nameserver."""
 
-  def __init__(self, ip, name=None, inteferred=False, primary=False):
-    self.n# We use _ for IPV6 representation in our configuration due to ConfigParser issues.
-    self.ip = ip.replace('_', ':')   self.ip = ip
-    self.is_system = intis_regional = False
-    self.is_global = False
-    self.is_custom = Falsestem = internal
-    self.system_position = Noneeferred = preferredimary = primary
+  def __init__(self, tags=None):
+    self.name = name
+    self.ip = ip
+    if tags:
+      self.tags = tags
+    else:
+      self.tags = set()imary = primary
     5
     self.health_timeout = 5th_timeoutping_timeout = 1th_timeoutResetTestStatus()replica = port_behavior = Nonereplica = _version = None
     self._node_ids = set()
@@ -110,6 +110,17 @@ PRclass NameServer(health_checks.NameServerHealthChecksmeServer(object):
       self.is_ipv6 = True
     else:
       self.is_ipv6 = False= DEFAULT_TIMER
+
+  @is_system(self):
+    return 'system' in self.tags
+
+  @property
+  def is_preferred(self):
+    return 'preferred' in self.tags
+
+  @property
+  def is_specified(self):
+    return 'user-specified' in self.tags= DEFAULT_TIMER
 
   @property
   def check_aver# If we only have a ping result, sort by it. Otherwise, use all non-ping results.
