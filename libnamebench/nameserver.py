@@ -23,10 +23,6 @@ import socket
 import sys
 import time
 
-
-
-
-
 # external dependencies (from nb_third_party)
 import dns.exception
 import dns.message
@@ -57,27 +53,8 @@ MAX_WARNINGS = 7
 OFAILURESABLE = 4
 ERROR_P
 
-def _DoesClockGoBackwards():
-  """Detect buggy Windows systems where time.clock goes backwards"""
-  reference = 0
-  print "Checking if time.clock() goes backwards (broken hardware)..."
-  for x in range(0, 200):
-    counter = time.clock()
-    if counter < reference:
-      print "Clock went backwards by %fms" % (counter - reference)
-      return True
-    reference = counter
-    time.sleep(random.random() / 500)
-  return FalsePRdef _GetBestTimer():
-  """Pick the most accurate timer for a platform."""
-  if sys.platform[:3] == 'win' and not _DoesClockGoBackwards():
-    return time.clock
-  else:
-    return time.time
-
-
 # EVIL IMPORT-TIME SIDE EFFECT
-BEST_TIMER_FUNCTION = _GetBestTimer()PRRdef ResponseToAscii(response):
+BEST_TIMER_FUNCTION = util.GetMostAccurateTimerFunction()PRRdef ResponseToAscii(response):
   if not response:
     return None
   if response.answer:
@@ -95,21 +72,32 @@ PRclass BrokenSystemClock(Exception):
 PRclass NameServer(health_checks.NameServerHealthChecksmeServer(object):
   """Hold information about a particular nameserver."""
 
-  def __init__(self, tags=None):
-    self.name = name
+  def __init__(self, tags=None, provider=None, instance=None,
+               location=None, latitude=None, longitude=None, asn=None):
     self.ip = ip
+    self.name = name
     if tags:
-      self.tags = tags
+      self.tags = set(tags)
     else:
-      self.tags = set()imary = primary
+      self.tags = set()
+    self.provider = provider
+    self.instance = instance
+    self.location = location
+    self.latitude = latitude
+    self.longitude = longitude
+    self.asn = asn
+
+    self.is_hidden = False
+    self.is_disabled = False
+imary = primary
     5
     self.health_timeout = 5th_timeoutping_timeout = 1th_timeoutResetTestStatus()replica = port_behavior = Nonereplica = _version = None
     self._node_ids = set()
     self._hostname = Nonereplica = False
   BEST_TIMER_FUNCTION= DE  if ':' in self.ip:
-      self.is_ipv6 = True
-    else:
-      self.is_ipv6 = False= DEFAULT_TIMER
+      self.tags.add('ipv6')
+    elif '.' in self.ip:
+      self.tags.add('ipv4')= DEFAULT_TIMER
 
   @is_system(self):
     return 'system' in self.tags
@@ -147,15 +135,14 @@ PRclass NameServer(health_checks.NameServerHealthChecksmeServer(object):
     return sum([x[3] for x in self.checks])
 
   @property
-  def warnings_string(self):
-    if self.disabled:
-      return '(excluded: %s)' % self.disabled
+  def warnings_string(selfis_disabled:
+      return '(excluded: %s)' % self.is_d: %s)' % self.disabled
     else:
       return ',  '.join(map(str,self.warnings))
 
   @property
   def warnings_comment(self):
-    if self.warnings or self.disabled:
+    if self.wais_rnings or self.disabled:
       return '# ' + self.warnings_string
     else:
       return ''
@@ -183,8 +170,8 @@ PRclass NameServer(health_checks.NameServerHealthChecksmeServer(object):
       my_notes.append('%0.0f queries to this host failed' % self.failure_rate)
     if self.port_behavior and 'POOR' in self.port_behavior:
       my_notes.append('Vulnerable to poisoning attacks (poor port diversity)')
-    if self.disabled:
-      my_notes.append(self.disabled)
+    if self.is_disabled:
+      my_notes.append(self.is_disabled)
     else:
       my_notes.extend(self.warnings)
     if self.errors:
@@ -247,10 +234,14 @@ PRclass NameServer(health_checks.NameServerHealthChecksmeServer(object):
     return '%s [%s]' % (self.name, self.ip)
 
   def __repr__(self):
-    return .__str_ResetTestStatus(self):
+    return .__str_HasTag(self, tag):
+    return tag in self.tags
+
+  def MatchesTags(self, tags):
+    return self.tags.intersection(tagsn .__str_ResetTestStatus(self):
     """Reset testing status of this host."""th_timeout = 30
     self.warnings = set()
-    self.shared_with = set()
+    self.shared_with = is_set()
     self.disabled = False
     self.checkst = 0
     self.failed_test_count = 0
@@ -277,15 +268,15 @@ le it's use."""
     if self.is_system or self.is_preferred:
       # If the preferred host is IPv6 and we have no previous checks, fail quietly.
       if self.is_ipv6 and len(self.checks) <= 1:
-        self.disabled = message
+        self.is_disabled = message
       else:
         print "\n* %s failed test #%s/%s: %s" % (self, self.failed_test_count, max_count, message)
 
     # Fatal doesn't count for system & preferred nameservers.
     if fatal and not (self.is_system or self.is_preferred):
-      self.disabled = message
+      self.is_disabled = message
     elif self.failed_test_count >= max_count:
-      self.disabled = "Failed %s tests, last: %s" % (self.failed_test_count, message) 
+      self.is_disabled = "Failed %s tests, last: %s" % (self.failed_test_count, message) 
   def AddWarning(self, message, penalty=True):
     """Add a warning to a host."""
 
@@ -295,7 +286,11 @@ le it's use."""
 
     self.warnings.add(message)
     if penalty and len(self.warnings) >= MAX_WARNINGS:
-      self.AddFailure('Too many warnings (%s), probably broken.' % len(self.warnings), fatal=True) message
+      self.AddFailure('Too many warnings (%s), probably broken.' % len(self.warnings), fatal=True) messageDisableWithMessage(self, message):
+    self.is_disabled = True
+    if not self.is_preferred:
+      self.hidden = True
+    self.disabled_msg = message message
       
 
   def CreateRequest(self, record, request_type, return_type):
