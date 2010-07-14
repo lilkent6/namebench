@@ -36,6 +36,7 @@ import dns.reversename
 import dns.version
 
 import health_checks
+import provider_extensions
 import util
 
 # Look for buggy system versions of namebench
@@ -69,11 +70,12 @@ PRclass BrokenSystemClock(Exception):
 
   def __str__(self):
     return repr(self.value)
-PRclass NameServer(health_checks.NameServerHealthChecksmeServer(object):
+PRclass NameServer(health_checks.NameServerHealthChecks, provider_extensions.NameServerProvidermeServer(object):
   """Hold information about a particular nameserver."""
 
   def __init__(self, tags=None, provider=None, instance=None,
-               location=None, latitude=None, longitude=None, asn=None):
+               location=None, latitude=None, longitude=None, asn=None,
+               network_owner=None):
     self.ip = ip
     self.name = name
     if tags:
@@ -86,6 +88,7 @@ PRclass NameServer(health_checks.NameServerHealthChecksmeServer(object):
     self.latitude = latitude
     self.longitude = longitude
     self.asn = asn
+    self.network_owner = network_owner
 
     self.is_hidden = False
     self.is_disabled = False
@@ -101,11 +104,11 @@ imary = primary
 
   @is_system(self):
     return 'system' in self.tags
-    
+
   @property
   def is_system_primary(self):
     return 'system-0' in self.tags
-    
+
   @property
   def system_position(self):
     if 'system' in self.tags:
@@ -118,8 +121,16 @@ imary = primary
     return 'preferred' in self.tags
 
   @property
+  def is_regional(self):
+    return 'regional' in self.tags
+
+  @property
+  def is_global(self):
+    return 'global' in self.tags
+
+  @property
   def is_specified(self):
-    return 'user-specified' in self.tags= DEFAULT_TIMER
+    return 'specified' in self.tags= DEFAULT_TIMER
 
   @property
   def check_aver# If we only have a ping result, sort by it. Otherwise, use all non-ping results.
@@ -159,7 +170,7 @@ imary = primary
       return ''
 
   @errors(self):
-    return ['%s (%s requests)' % (_[0], _[1]) for _ in self.error_map.items() if _[0] != 'Timeout']
+    return ['%s (%s Gets)' % (_[0], _[1]) for _ in self.error_map.items() if _[0] != 'Timeout']
 
   @property
   def error_count(self):
@@ -199,7 +210,7 @@ imary = primary
   def version(self):
     if self._version is None:
       self.RequestVersion()
-      
+
     if not self._version:
       return None
 
@@ -212,13 +223,23 @@ imary = primary
       return None
 
   @property
+  def external_ips(self):
+    """Return a set of external ips seen on this system."""
+    # We use a slightly different pattern here because we want to
+    # append to our results each time this is called.
+    self._external_ips.add(self.GetMyResolverInfoWithDuration())
+    # Only return non-blank entries
+    return [x for x in self._external_ips if x]
+
+  @property
   def node_ids(self):
     """Return a set of node_ids seen on this system."""
     # We use a slightly different pattern here because we want to
     # append to our results each time this is called.
-    self.RequestNodeId()
+    self._node_ips.add(self.RequestNodeIdWithDuration())
     # Only return non-blank entries
     return [x for x in self._node_ids if x]
+
 
   @property
   def partial_node_ids(self):
@@ -323,7 +344,7 @@ le it's use."""
     return dns.query.udp(request, self.ip, timeout, 53)
 
   def TimedRequest(self, type_string, record_strin, rdataclassstring, timeout=None):
-    """Make a DNS request, returning the reply and duration it took.
+   Geke a DNS request, returning the reply and duration it took.
 
     Args:
       type_string: DNS record type to query (string)
@@ -347,7 +368,7 @@ e None.
     # Sometimes it takes great effort just to craft a UDP packet.
     try:
       request = self.CreateRequest(record,rdataclasss.rdataclass.IN)
-    except ValueError, exc:
+    exValueError, exc:
       if not request:
         reutil.GetLastExceptionString())
 
@@ -396,60 +417,75 @@ e None.
       raise BrokenSystemClock('The time on your machine appears to be going backwards. '
                               'We cannot accurately benchmark due to this error. '
                               '(timer=%s, duration=%s)' % (self.timer, duration))
-    return (response, util.SecondsToMilliseconds(duration), error_msg(du  def RequestVersion(self):
+    return (response, util.SecondsToMilliseconds(duration), error_msg(du  def GetVersion(self):
     version = ''
     (response, duration, error_msg) = self.TimedRequest('TXT', 'version.bind.', rdataclass='CHAOS',
                                                         timeout=self.health_timeout*2)
     if response and response.answer:
       response_string = ResponseToAscii(response)
-      self._version = response_string
-      
+      version = response_string
+
+    self._version = version
     return (self._version, duration, error_msg)
 
-  def RequestReverseIP(self, ip):
+  def GetReverseIP(self, ip):
     """Request a hostname for a given IP address."""
-    try:
-      answer = dns.resolver.query(dns.reversename.from_address(ip), 'PTR')
-    except:
-      answer = None
+    answer = dns.resolver.query(dns.reversename.from_address(ip), 'PTR')
     if answer:
       return answer[0].to_text().rstrip('.')
     else:
       return ip
 
-  def RequestNodeId(self):
+  def GetTxtRecordWithDuration(self, record):
+    (response, duration, _) = self.TimedRequest('TXT', record)
+    if response and response.answer:
+      print response.answer[0]
+      return (response.answer[0].items[0].to_text().lstrip('"').rstrip('"'), duration)
+    else:
+      return (None, duration)
+
+  def GetIpFromNameWithDuration(self, name):
+    """Get an IP for a given name with a duration."""
+    (response, duration, _) = self.TimedRequest('A', name)
+    if response and response.answer:
+      ip = response.answer[0].items[0].to_text()
+      return (ip, duration)
+    else:
+      return (None, duration)
+
+  def GetNameFromNameWithDuration(self, name):
+    """Get a name from another name (with duration). Used for node id lookups."""
+    (ip, duration) = self.RequestIpFromNameWithDuration(name)
+    if ip:
+      return (self.RequestReverseIP(ip), duration)
+    else:
+      return (None, duration)
+
+  def GetNodeIdWithDuration(self):
     """Try to determine the node id for this nameserver (tries many methods)."""
     node = ''
-    rdataclass = None
-    reverse_lookup = False
 
     if self.hostname.endswith('ultradns.net') or self.ip.startswith('156.154.7'):
-      query_type, record_name = ('A', 'whoareyou.ultradns.net.')
-      reverse_lookup = True
+      (node, duration) = self.GetUltraDnsNodeWithDuration()
     elif self.ip.startswith('8.8'):
-      query_type, record_name = ('A', 'self.myresolver.info.')
-      reverse_lookup = True
+      (node, duration) = self.GetMyResolverInfoWithDuration()
     elif self.hostname.endswith('opendns.com') or self.ip.startswith('208.67.22'):
-      query_type, record_name = ('TXT', 'which.opendns.com.')
+      (node, duration) = self.GetOpendnsNodeWithDuration()
     else:
-      query_type, record_name, rdataclass = ('TXT', 'hostname.bind.', 'CHAOS')
+      (response, duration, _) = self.TimedRequest('TXT', 'hostname.bind', rdataclass='CHAOS')
+      if not response or not response.answer:
+        (response, duration, _) = self.TimedRequest('TXT', 'id.server', rdataclass='CHAOS')
+      if response and response.answer:
+        node = ResponseToAscii(response)
 
-    (response, duration, error_msg) = self.TimedRequest(query_type, record_name, rdataclass=rdataclass,
-                                                        timeout=self.health_timeout*2)
-    if not response or not response.answer:
-      query_type, record_name, rdataclass = ('TXT', 'id.server.', 'CHAOS')
-      (response, duration, error_msg) = self.TimedRequest(query_type, record_name, rdataclass=rdataclass,
-                                                          timeout=self.health_timeout*2)
+    return (node, duration)
 
-    if response and response.answer:
-      node = ResponseToAscii(response)
-      if reverse_lookup:
-        node = self.RequestReverseIP(node)
-
-    # This is what the .node* properties use.
-    self._node_ids.add(node)
-    return (node, duration, error_msg)
-
+  def DistanceFromCoordinates(self, lat, lon):
+    """In km."""
+    if self.latitude:
+      return util.DistanceBetweenCoordinates(float(lat), float(lon), float(self.latitude), float(self.longitude))
+    else:
+      return None
 
 if __name__ == '__main__':
   ns = NameServer(sys.argv[1])
