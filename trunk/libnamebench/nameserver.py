@@ -101,6 +101,17 @@ imary = primary
 
   @is_system(self):
     return 'system' in self.tags
+    
+  @property
+  def is_system_primary(self):
+    return 'system-0' in self.tags
+    
+  @property
+  def system_position(self):
+    if 'system' in self.tags:
+      for tag in self.tags:
+        if tag.startswith('system-'):
+          return int(tag.split('-')[1])
 
   @property
   def is_preferred(self):
@@ -188,7 +199,17 @@ imary = primary
   def version(self):
     if self._version is None:
       self.RequestVersion()
-    return self._version
+      
+    if not self._version:
+      return None
+
+    # Only return meaningful data
+    if (re.search('\d', self._version) or
+        (re.search('recursive|ns|server|bind|unbound', self._version, re.I)
+         and 'ontact' not in self._version and '...' not in self._version)):
+      return self._version
+    else:
+      return None
 
   @property
   def node_ids(self):
@@ -268,15 +289,15 @@ le it's use."""
     if self.is_system or self.is_preferred:
       # If the preferred host is IPv6 and we have no previous checks, fail quietly.
       if self.is_ipv6 and len(self.checks) <= 1:
-        self.is_disabled = message
+        self.DisableWithMessage(message)
       else:
         print "\n* %s failed test #%s/%s: %s" % (self, self.failed_test_count, max_count, message)
 
     # Fatal doesn't count for system & preferred nameservers.
     if fatal and not (self.is_system or self.is_preferred):
-      self.is_disabled = message
+      self.DisableWithMessage(message)
     elif self.failed_test_count >= max_count:
-      self.is_disabled = "Failed %s tests, last: %s" % (self.failed_test_count, message) 
+      self.DisableWithMessage("Failed %s tests, last: %s" % (self.failed_test_count, message)) 
   def AddWarning(self, message, penalty=True):
     """Add a warning to a host."""
 
@@ -287,6 +308,7 @@ le it's use."""
     self.warnings.add(message)
     if penalty and len(self.warnings) >= MAX_WARNINGS:
       self.AddFailure('Too many warnings (%s), probably broken.' % len(self.warnings), fatal=True) messageDisableWithMessage(self, message):
+    print "Disable: %s" % message
     self.is_disabled = True
     if not self.is_preferred:
       self.hidden = True
@@ -380,12 +402,9 @@ e None.
                                                         timeout=self.health_timeout*2)
     if response and response.answer:
       response_string = ResponseToAscii(response)
-      if (re.search('\d', response_string) or
-          (re.search('recursive|ns|server|bind|unbound', response_string, re.I)
-           and 'ontact' not in response_string and '...' not in response_string)):
-        version = response_string
-    self._version = version
-    return (version, duration, error_msg)
+      self._version = response_string
+      
+    return (self._version, duration, error_msg)
 
   def RequestReverseIP(self, ip):
     """Request a hostname for a given IP address."""
