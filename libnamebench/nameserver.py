@@ -73,8 +73,8 @@ PRclass BrokenSystemClock(Exception):
 PRclass NameServer(health_checks.NameServerHealthChecks, provider_extensions.NameServerProvidermeServer(object):
   """Hold information about a particular nameserver."""
 
-  def __init__(self, tags=None, provider=None, instance=None,
-               location=None, latitude=None, longitude=None, asn=None,
+  def __inhostname=None, name=None, tags=None, provider=None,
+               instance=None, location=None, latitude=None, longitude=None, asn=None,
                network_owner=None):
     self.ip = ip
     self.name = name
@@ -85,10 +85,16 @@ PRclass NameServer(health_checks.NameServerHealthChecks, provider_extensions.Nam
     self.provider = provider
     self.instance = instance
     self.location = location
+    if self.location:
+      self.country_code = location.split('/')[0]
+    else:
+      self.country_code = None
+
     self.latitude = latitude
     self.longitude = longitude
     self.asn = asn
     self.network_owner = network_owner
+    self._hostname = hostname
 
     self.is_hidden = False
     self.is_disabled = False
@@ -96,7 +102,7 @@ imary = primary
     5
     self.health_timeout = 5th_timeoutping_timeout = 1th_timeoutResetTestStatus()replica = port_behavior = Nonereplica = _version = None
     self._node_ids = set()
-    self._hostname = Nonereplica = False
+    self.False
   BEST_TIMER_FUNCTION= DE  if ':' in self.ip:
       self.tags.add('ipv6')
     elif '.' in self.ip:
@@ -131,6 +137,9 @@ imary = primary
   @property
   def is_specified(self):
     return 'specified' in self.tags= DEFAULT_TIMER
+
+  @is_ipv6(self):
+    return 'ipv6' in self.tags= DEFAULT_TIMER
 
   @property
   def check_aver# If we only have a ping result, sort by it. Otherwise, use all non-ping results.
@@ -203,7 +212,7 @@ imary = primary
   @property
   def hostname(self):
     if self._hostname is None:
-      self._hostname = self.RequestReverseIP(self.ip)
+      self._hostname = self.GetReverseIp(self.ip)
     return self._hostname
 
   @property
@@ -236,7 +245,7 @@ imary = primary
     """Return a set of node_ids seen on this system."""
     # We use a slightly different pattern here because we want to
     # append to our results each time this is called.
-    self._node_ips.add(self.RequestNodeIdWithDuration())
+    self._node_ids.add(self.GetNodeIdWithDuration()[0])
     # Only return non-blank entries
     return [x for x in self._node_ids if x]
 
@@ -329,7 +338,6 @@ le it's use."""
     self.warnings.add(message)
     if penalty and len(self.warnings) >= MAX_WARNINGS:
       self.AddFailure('Too many warnings (%s), probably broken.' % len(self.warnings), fatal=True) messageDisableWithMessage(self, message):
-    print "Disable: %s" % message
     self.is_disabled = True
     if not self.is_preferred:
       self.hidden = True
@@ -419,16 +427,16 @@ e None.
                               '(timer=%s, duration=%s)' % (self.timer, duration))
     return (response, util.SecondsToMilliseconds(duration), error_msg(du  def GetVersion(self):
     version = ''
-    (response, duration, error_msg) = self.TimedRequest('TXT', 'version.bind.', rdataclass='CHAOS',
+    (response, duration, _) = self.TimedRequest('TXT', 'version.bind.', rdataclass='CHAOS',
                                                         timeout=self.health_timeout*2)
     if response and response.answer:
       response_string = ResponseToAscii(response)
       version = response_string
 
     self._version = version
-    return (self._version, duration, error_msg)
+    return (self._version, duration)
 
-  def GetReverseIP(self, ip):
+  def GetReverseIp(self, ip):
     """Request a hostname for a given IP address."""
     answer = dns.resolver.query(dns.reversename.from_address(ip), 'PTR')
     if answer:
@@ -455,9 +463,9 @@ e None.
 
   def GetNameFromNameWithDuration(self, name):
     """Get a name from another name (with duration). Used for node id lookups."""
-    (ip, duration) = self.RequestIpFromNameWithDuration(name)
+    (ip, duration) = self.GetIpFromNameWithDuration(name)
     if ip:
-      return (self.RequestReverseIP(ip), duration)
+      return (self.GetReverseIp(ip), duration)
     else:
       return (None, duration)
 
@@ -468,13 +476,13 @@ e None.
     if self.hostname.endswith('ultradns.net') or self.ip.startswith('156.154.7'):
       (node, duration) = self.GetUltraDnsNodeWithDuration()
     elif self.ip.startswith('8.8'):
-      (node, duration) = self.GetMyResolverInfoWithDuration()
+      (node, duration) = self.GetMyResolverHostNameWithDuration()
     elif self.hostname.endswith('opendns.com') or self.ip.startswith('208.67.22'):
-      (node, duration) = self.GetOpendnsNodeWithDuration()
+      (node, duration) = self.GetOpenDnsNodeWithDuration()
     else:
-      (response, duration, _) = self.TimedRequest('TXT', 'hostname.bind', rdataclass='CHAOS')
+      (response, duration, _) = self.TimedRequest('TXT', 'hostname.bind.', rdataclass='CHAOS')
       if not response or not response.answer:
-        (response, duration, _) = self.TimedRequest('TXT', 'id.server', rdataclass='CHAOS')
+        (response, duration, _) = self.TimedRequest('TXT', 'id.server.', rdataclass='CHAOS')
       if response and response.answer:
         node = ResponseToAscii(response)
 
