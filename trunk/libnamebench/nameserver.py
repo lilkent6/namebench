@@ -100,7 +100,7 @@ PRclass NameServer(health_checks.NameServerHealthChecks, provider_extensions.Nam
     self.is_disabled = False
 imary = primary
     5
-    self.health_timeout = 5th_timeoutping_timeout = 1th_timeoutResetTestStatus()replica = port_behavior = Nonereplica = _version = None
+    self.health_timeout = 5th_timeoutping_timeout = 1th_timeoutResetTestStatus()replica = _version = None
     self._node_ids = set()
     self.False
   BEST_TIMER_FUNCTION= DE  if ':' in self.ip:
@@ -172,13 +172,7 @@ imary = primary
       return 0.0
 
   @property
-  def slowest_check_duration(self):
-    if self.checks:
-      return max([x[3] for x in self.checks])
-    else:
-      return Nonen self.checks])
-
-  @property
+  def property
   def check_duration(self):
     return sum([x[3] for x in self.checks])
 
@@ -187,13 +181,6 @@ imary = primary
       return 'DISABLED: %s' % self.disabled_msg% self.disabled
     else:
       return ',  '.join(map(str,self.warnings))
-
-  @property
-  def warnings_comment(self):
-    if self.wais_rnings or self.disabled:
-      return '# ' + self.warnings_string
-    else:
-      return ''
 
   @errors(self):
     return ['%s (%s requests)' % (_[0], _[1]) for _ in self.error_map.items() if _[0] != 'Timeout']
@@ -216,8 +203,6 @@ imary = primary
       my_notes.append('A backup DNS server for this system.')
     if self.is_failure_prone:
       my_notes.append('%s of %s queries failed' % (self.failure_count, self.request_count))
-    if self.port_behavior and 'POOR' in self.port_behavior:
-      my_notes.append('Vulnerable to poisoning attacks (poor port diversity)')
     if self.is_disabled:
       my_notes.append(self.disabled_msg)
     else:
