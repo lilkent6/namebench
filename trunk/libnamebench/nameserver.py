@@ -440,7 +440,6 @@ e None.
   def GetTxtRecordWithDuration(self, record):
     (response, duration, _) = self.TimedRequest('TXT', record)
     if response and response.answer:
-      print response.answer[0]
       return (response.answer[0].items[0].to_text().lstrip('"').rstrip('"'), duration)
     else:
       return (None, duration)
