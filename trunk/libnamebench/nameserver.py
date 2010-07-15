@@ -106,7 +106,24 @@ imary = primary
   BEST_TIMER_FUNCTION= DE  if ':' in self.ip:
       self.tags.add('ipv6')
     elif '.' in self.ip:
-      self.tags.add('ipv4')= DEFAULT_TIMER
+      self.tags.add('ipv4')= DE  if ip.endswith('.0') or ip.endswith('.255'):
+      self.DisableWithMessage("IP appears to be a broadcast address."n .__str_ResetTestStatus(self):
+    """Reset testing status of this host."""th_timeout = 30
+    self.warnings = set()
+    self.shared_with = is_set()
+    self.disabled = False
+    self.checkst = 0
+    self.failed_test_count = 0
+    self.share_check_count = 0
+    self.cache_checks = []
+    self.is_slower_r    self.ResetErrorCounts()
+
+  def ResetErrorCounts(self):
+    """NOTE: This gets called by benchmark.Run()!"""
+
+    self.request_count = 0
+    self.failure_count = 0
+    self.error_map = {}r.__FAULT_TIMER
 
   @is_system(self):
     return 'system' in self.tags
@@ -167,7 +184,7 @@ imary = primary
 
   @property
   def warnings_string(selfis_disabled:
-      return '(excluded: %s)' % self.is_d: %s)' % self.disabled
+      return 'DISABLED: %s' % self.disabled_msg% self.disabled
     else:
       return ',  '.join(map(str,self.warnings))
 
@@ -179,7 +196,7 @@ imary = primary
       return ''
 
   @errors(self):
-    return ['%s (%s Gets)' % (_[0], _[1]) for _ in self.error_map.items() if _[0] != 'Timeout']
+    return ['%s (%s requests)' % (_[0], _[1]) for _ in self.error_map.items() if _[0] != 'Timeout']
 
   @property
   def error_count(self):
@@ -198,11 +215,11 @@ imary = primary
     elif self.system_position:
       my_notes.append('A backup DNS server for this system.')
     if self.is_failure_prone:
-      my_notes.append('%0.0f queries to this host failed' % self.failure_rate)
+      my_notes.append('%s of %s queries failed' % (self.failure_count, self.request_count))
     if self.port_behavior and 'POOR' in self.port_behavior:
       my_notes.append('Vulnerable to poisoning attacks (poor port diversity)')
     if self.is_disabled:
-      my_notes.append(self.is_disabled)
+      my_notes.append(self.disabled_msg)
     else:
       my_notes.extend(self.warnings)
     if self.errors:
@@ -218,7 +235,7 @@ imary = primary
   @property
   def version(self):
     if self._version is None:
-      self.RequestVersion()
+      self.GetVersion()
 
     if not self._version:
       return None
@@ -289,23 +306,7 @@ imary = primary
     return tag in self.tags
 
   def MatchesTags(self, tags):
-    return self.tags.intersection(tagsn .__str_ResetTestStatus(self):
-    """Reset testing status of this host."""th_timeout = 30
-    self.warnings = set()
-    self.shared_with = is_set()
-    self.disabled = False
-    self.checkst = 0
-    self.failed_test_count = 0
-    self.share_check_count = 0
-    self.cache_checks = []
-    self.is_slower_r    self.ResetErrorCounts()
-
-  def ResetErrorCounts(self):
-    """NOTE: This gets called by benchmark.Run()!"""
-
-    self.request_count = 0
-    self.failure_count = 0
-    self.error_map = {}r.__str__()
+    return self.tags.intersection(tagsn .__str__()
     
   def AddFailur, fatal=Falsre(self, message):
     """Add a failure for this nameserver. This will effectively disable itif self.is_system:
@@ -339,7 +340,9 @@ le it's use."""
     if penalty and len(self.warnings) >= MAX_WARNINGS:
       self.AddFailure('Too many warnings (%s), probably broken.' % len(self.warnings), fatal=True) messageDisableWithMessage(self, message):
     self.is_disabled = True
-    if not self.is_preferred:
+    if self.is_preferred or self.is_specified:
+      print "DISABLING %s: %s" % (self, message)
+    else:
       self.hidden = True
     self.disabled_msg = message message
       
@@ -371,7 +374,7 @@ e None.
     request_type = dns.rdatatype.from_text(type_string)
     record = dns.name.from_text(record_string, None)
     request = None
-    self.requcount += 1
+    self.requc#    print "%s: %s:%s" % (self, type_string, record_string)ucount += 1
     
     # Sometimes it takes great effort just to craft a UDP packet.
     try:
