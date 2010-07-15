@@ -298,7 +298,12 @@ imary = primary
     else:
       return (float(self.failureloat(self.error_count) / float(self.request_count)) * 100
 
-  def __str__(self):
+  def __stif self.is_disabled:
+      return '%s [DIS:%s]' % (self.name, self.ip)
+    elif self.is_hidden:
+      return '%s [HID:%s]' % (self.name, self.ip)
+    else:
+  __str__(self):
     return '%s [%s]' % (self.name, self.ip)
 
   def __repr__(self):
