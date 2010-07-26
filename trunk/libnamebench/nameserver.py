@@ -370,9 +370,7 @@ e None.
     request_type = dns.rdatatype.from_text(type_string)
     record = dns.name.from_text(record_string, None)
     request = None
-    self.requc#    print "%s: %s:%s" % (self, type_string, record_string)ucount += 1
-    
-    # Sometimes it takes great effort just to craft a UDP packet.
+    self.requc a UDP packet.
     try:
       request = self.CreateRequest(record,rdataclasss.rdataclass.IN)
     exValueError, exc:
@@ -427,7 +425,7 @@ e None.
     return (response, util.SecondsToMilliseconds(duration), error_msg(du  def GetVersion(self):
     version = ''
     (response, duration, _) = self.TimedRequest('TXT', 'version.bind.', rdataclass='CHAOS',
-                                                        timeout=self.health_timeout*2)
+                                                        timeout=self.health_timeout)
     if response and response.answer:
       response_string = ResponseToAscii(response)
       version = response_string
@@ -435,24 +433,37 @@ e None.
     self._version = version
     return (self._version, duration)
 
-  def GetReverseIp(self, ip):
+  def GetReverseIp(self, ip, retries_left=2):
     """Request a hostname for a given IP address."""
-    answer = dns.resolver.query(dns.reversename.from_address(ip), 'PTR')
+    try:
+      answer = dns.resolver.query(dns.reversename.from_address(ip), 'PTR')
+    except dns.resolver.NXDOMAIN:
+      return ip
+    except:
+      if retries_left:
+        print "* Failed to get hostname for %s (retries left: %s): %s" % (ip, retries_left, util.GetLastExceptionString())
+        return self.GetReverseIp(ip, retries_left=retries_left-1)
+      else:
+        return ip
+
     if answer:
       return answer[0].to_text().rstrip('.')
     else:
       return ip
 
-  def GetTxtRecordWithDuration(self, record):
-    (response, duration, _) = self.TimedRequest('TXT', record)
+  def GetTxtRecordWithDuration(self, record, retries_left=2):
+    (response, duration, _) = self.TimedRequest('TXT', record, timeout=self.health_timeout)
     if response and response.answer:
       return (response.answer[0].items[0].to_text().lstrip('"').rstrip('"'), duration)
+    elif not response and retries_left:
+      print "* Failed to lookup %s (retries left: %s): %s" % (record, retries_left, util.GetLastExceptionString())      
+      return self.GetTxtRecordWithDuration(record, retries_left=retries_left-1)
     else:
       return (None, duration)
 
   def GetIpFromNameWithDuration(self, name):
     """Get an IP for a given name with a duration."""
-    (response, duration, _) = self.TimedRequest('A', name)
+    (response, duration, _) = self.TimedRequest('A', name, timeout=self.health_timeout)
     if response and response.answer:
       ip = response.answer[0].items[0].to_text()
       return (ip, duration)
