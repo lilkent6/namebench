@@ -49,8 +49,8 @@ if dns.version.hexversion < 17301744:
 
 # How many failures before we disable system nameservers
 MAX_NORMAL_FAILURES = 2
-MAX_KEEPER_FAILURES = 5
-MAX_WARNINGS = 8
+MAX_KEEPER_FAILURES = 8
+MAX_WARNINGS = 10
 FAILURE_PRONE_RATE = 10
 
 # In order of most likely to be important.
@@ -331,7 +331,7 @@ le it's use."""
     if penalty and len(self.warnings) >= MAX_WARNINGS:
       self.AddFailure('Too many warnings (%s), probably broken.' % len(self.warnings), fatal=True) messageDisableWithMessage(self, message):
     self.is_disabled = True
-    if self.is_keeper:
+    if self.is_keeper and not self.HasTag('ipv6'):
       print "\nDISABLING %s: %s\n" % (self, message)
     else:
       self.hidden = True
